@@ -16,18 +16,14 @@ from enum import Enum
 from typing import Optional
 
 from pymavlink import mavutil
-
+from Models.PayloadState import *
 import config
 from logger_config import setup_logger
 
 logger = setup_logger("payload")
 
 
-class PayloadState(Enum):
-    """Faydalı yük durumları."""
-    LOADED = "loaded"       # Yük takılı
-    DROPPED = "dropped"     # Yük bırakıldı
-    ERROR = "error"         # Hata
+
 
 
 class PayloadManager:
@@ -227,6 +223,26 @@ class PayloadManager:
     def is_payload_2_loaded(self) -> bool:
         """Yük 2 hâlâ yüklü mü?"""
         return self.payload_2_state == PayloadState.LOADED
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # =============================================================================

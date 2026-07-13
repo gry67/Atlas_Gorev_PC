@@ -1,19 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Teknofest Uluslararası İHA Yarışması - Ana Görev Kontrolcüsü
-===============================================================
-State machine (durum makinesi) tabanlı otonom görev yönetimi.
-
-Görev Akışı:
-  INIT → TAKEOFF → SEARCH → PROCESS → NAVIGATE_BLUE → DROP_BLUE
-  → NAVIGATE_RED → DROP_RED → RTL → COMPLETE
-
-Kullanım:
-  python3 main.py [--sitl] [--no-camera]
-
-Orange Cube+ (ArduPilot) uyumlu.
-"""
-
+import numpy as np
 import os
 import sys
 import time
@@ -28,10 +13,11 @@ from logger_config import setup_logger
 from vision import VisionProcessor, DetectionResult
 from coordinate_transform import CoordinateTransformer
 from navigation import NavigationManager
-from payload import PayloadManager
+from PayloadManager import PayloadManager
+
+
 
 logger = setup_logger("mission")
-
 
 class MissionController:
     """
@@ -65,7 +51,19 @@ class MissionController:
         # Biriktirilen tespitler (doğrulama için)
         self._blue_detections_buffer: List[Tuple[float, float]] = []
         self._red_detections_buffer: List[Tuple[float, float]] = []
-        self._detection_threshold = 3  # Kaç kez tespit edilmeli
+        # SEARCH aşaması ayarları
+        # Bu değerler config.py içinde tanımlıysa oradan alınır.
+        self.search_duration = float(
+            getattr(config, "SEARCH_DURATION_SECONDS", 12.0)
+        )
+        self.detection_sample_interval = float(
+            getattr(config, "DETECTION_SAMPLE_INTERVAL", 0.20)
+        )
+        self.minimum_detection_samples = int(
+            getattr(config, "MINIMUM_DETECTION_SAMPLES", 10)
+        )
+        self._last_detection_sample_time = 0.0
+        self._search_window_started = False
 
         # Görev zamanlaması
         self.mission_start_time = None
@@ -281,20 +279,49 @@ class MissionController:
 
     def _handle_search(self):
         """
-        SEARCH: Seyir uçuşu sırasında görüntü işleme ile hedef arama.
+        SEARCH: Belirli bir süre boyunca görüntü işleme ile hedef arama.
+
+        SEARCH süresi boyunca tespitler belirli aralıklarla kaydedilir.
+        Süre tamamlandığında yeterli mavi ve kırmızı örnek varsa PROCESS
+        aşamasına geçilir ve hedef konumları tüm örneklerden hesaplanır.
         """
-        if self.state_start_time is None:
-            self.state_start_time = time.time()
+        now = time.time()
+
+        # Yeni SEARCH penceresini başlat.
+        if not self._search_window_started:
+            self._search_window_started = True
+            self.state_start_time = now
+            self._last_detection_sample_time = 0.0
+            self._blue_detections_buffer.clear()
+            self._red_detections_buffer.clear()
+
             logger.info("=" * 50)
-            logger.info("DURUM: SEARCH - Hedef Aranıyor")
+            logger.info("DURUM: SEARCH - Süreli Hedef Arama")
             logger.info("=" * 50)
+            logger.info(
+                f"Arama süresi: {self.search_duration:.1f}s, "
+                f"örnekleme aralığı: {self.detection_sample_interval:.2f}s, "
+                f"minimum örnek: {self.minimum_detection_samples}"
+            )
+
+        search_elapsed = now - self.state_start_time
+
+        # Belirlenen örnekleme aralığı dolmadıysa yeni kare işleme.
+        if (
+            self._last_detection_sample_time > 0.0
+            and now - self._last_detection_sample_time
+            < self.detection_sample_interval
+        ):
+            return
+
+        self._last_detection_sample_time = now
 
         # Kamera karesi yakala
         if self.use_camera:
             frame = self.vision.capture_frame()
         else:
             # Test modu: sentetik kare
-            import numpy as np
+            
             frame = np.zeros((480, 640, 3), dtype=np.uint8)
 
         if frame is None:
@@ -351,13 +378,49 @@ class MissionController:
             annotated = self.vision.draw_detections(frame, detections)
             self.vision.save_debug_image(annotated, "search")
 
-        # Yeterli tespit toplandı mı?
-        blue_ready = len(self._blue_detections_buffer) >= self._detection_threshold
-        red_ready = len(self._red_detections_buffer) >= self._detection_threshold
+        # SEARCH süresi henüz tamamlanmadıysa toplamaya devam et.
+        if search_elapsed < self.search_duration:
+            if int(search_elapsed) != int(
+                max(0.0, search_elapsed - self.detection_sample_interval)
+            ):
+                logger.info(
+                    f"Arama devam ediyor: {search_elapsed:.0f}/"
+                    f"{self.search_duration:.0f}s | "
+                    f"Mavi={len(self._blue_detections_buffer)}, "
+                    f"Kırmızı={len(self._red_detections_buffer)}"
+                )
+            return
+
+        blue_count = len(self._blue_detections_buffer)
+        red_count = len(self._red_detections_buffer)
+
+        blue_ready = blue_count >= self.minimum_detection_samples
+        red_ready = red_count >= self.minimum_detection_samples
+
+        logger.info(
+            f"SEARCH süresi tamamlandı: "
+            f"Mavi={blue_count}, Kırmızı={red_count}"
+        )
 
         if blue_ready and red_ready:
-            logger.info("✓ Yeterli tespit toplandı, işleme geçiliyor")
+            logger.info(
+                "✓ Her iki renk için yeterli örnek toplandı, "
+                "işleme geçiliyor"
+            )
+            self._search_window_started = False
             self._transition_to(MissionState.PROCESS)
+            return
+
+        logger.warning(
+            "Yeterli tespit toplanamadı. "
+            f"Gerekli minimum={self.minimum_detection_samples}, "
+            f"Mavi={blue_count}, Kırmızı={red_count}. "
+            "Yeni SEARCH penceresi başlatılıyor."
+        )
+
+        # Yeni süreli arama penceresi için sıfırla.
+        self._search_window_started = False
+        self.state_start_time = None
 
     def _handle_process(self):
         """
@@ -398,12 +461,14 @@ class MissionController:
         if not self.blue_targets:
             logger.warning("Mavi hedef bulunamadı, aramaya dönülüyor")
             self._blue_detections_buffer.clear()
+            self._search_window_started = False
             self._transition_to(MissionState.SEARCH)
             return
 
         if not self.red_targets:
             logger.warning("Kırmızı hedef bulunamadı, aramaya dönülüyor")
             self._red_detections_buffer.clear()
+            self._search_window_started = False
             self._transition_to(MissionState.SEARCH)
             return
 
@@ -639,67 +704,3 @@ class MissionController:
         self.navigation.disconnect()
 
         logger.info("✓ Sistem kapatıldı")
-
-
-# =============================================================================
-# ANA GİRİŞ NOKTASI
-# =============================================================================
-def main():
-    """Ana fonksiyon - komut satırı argümanlarını işler ve görevi başlatır."""
-
-    parser = argparse.ArgumentParser(
-        description="Teknofest İHA Otonom Görev Sistemi",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Örnekler:
-  python3 main.py                    # Gerçek uçuş (Orange Cube+ + Kamera)
-  python3 main.py --sitl             # SITL simülatörü ile test
-  python3 main.py --sitl --no-camera # SITL + kamerasız test
-        """
-    )
-
-    parser.add_argument(
-        '--sitl',
-        action='store_true',
-        help='SITL simülatörü kullan (test amaçlı)'
-    )
-    parser.add_argument(
-        '--no-camera',
-        action='store_true',
-        help='Kamera kullanma (test amaçlı)'
-    )
-    parser.add_argument(
-        '--connection',
-        type=str,
-        default=None,
-        help='Özel MAVLink bağlantı stringi'
-    )
-
-    args = parser.parse_args()
-
-    # Bağlantı stringi override
-    if args.connection:
-        config.CONNECTION_STRING = args.connection
-
-    print()
-    print("╔══════════════════════════════════════════════════════════╗")
-    print("║     TEKNOFEST ULUSLARARASI İHA YARIŞMASI               ║")
-    print("║     Otonom Görev Sistemi v1.0                           ║")
-    print("╠══════════════════════════════════════════════════════════╣")
-    print(f"║  Mod: {'SITL Simülasyon' if args.sitl else 'GERÇEK UÇUŞ':42s}  ║")
-    print(f"║  Kamera: {'Kapalı' if args.no_camera else 'Açık':40s}  ║")
-    print(f"║  Bağlantı: {config.SITL_CONNECTION if args.sitl else config.CONNECTION_STRING:38s}  ║")
-    print("╚══════════════════════════════════════════════════════════╝")
-    print()
-
-    # Görev kontrolcüsünü oluştur ve başlat
-    controller = MissionController(
-        use_sitl=args.sitl,
-        use_camera=not args.no_camera,
-    )
-
-    controller.run()
-
-
-if __name__ == "__main__":
-    main()

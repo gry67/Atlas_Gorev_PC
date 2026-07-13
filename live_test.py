@@ -28,9 +28,9 @@ import sys
 import time
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
-
 import cv2
 import numpy as np
+from picamera2 import Picamera2
 
 
 # =============================================================================
@@ -38,7 +38,7 @@ import numpy as np
 # =============================================================================
 
 try:
-    from picamera2 import Picamera2
+    
 
     HAS_PICAMERA2 = True
 except ImportError:
@@ -144,50 +144,13 @@ DEBUG_DIR = "debug_images"
 # VERİ SINIFLARI
 # =============================================================================
 
-@dataclass
-class Detection:
-    color: str
-    center: Tuple[int, int]
-    area: float
-
-    # Normal yatay kutu, yazı konumu ve yedek merkez için kullanılır.
-    bbox: Tuple[int, int, int, int]
-
-    # Döndürülmüş dikdörtgenin dört köşe noktası
-    rotated_box: np.ndarray = field(repr=False)
-
-    aspect_ratio: float
-    rectangularity: float
-    corners: int
-    angle: float
-    confidence: float
-
-    contour: np.ndarray = field(repr=False)
-
-    verified: bool = False
-    consecutive_frames: int = 1
 
 
-@dataclass
-class TrackState:
-    last_center: Optional[Tuple[int, int]] = None
-    consecutive_frames: int = 0
-    missed_frames: int = 0
-    last_detection: Optional[Detection] = None
 
 
-@dataclass
-class StageStatistics:
-    total_frames: int = 0
 
-    blue_verified_frames: int = 0
-    red_verified_frames: int = 0
 
-    blue_events: int = 0
-    red_events: int = 0
 
-    previous_blue_verified: bool = False
-    previous_red_verified: bool = False
 
 
 # =============================================================================
@@ -685,120 +648,6 @@ def detect_all(
 # TAKİP SİSTEMİ
 # =============================================================================
 
-class DetectionTracker:
-    def __init__(self) -> None:
-        self.states: Dict[str, TrackState] = {
-            "MAVİ": TrackState(),
-            "KIRMIZI": TrackState(),
-        }
-
-    def reset(self, color: str) -> None:
-        self.states[color] = TrackState()
-
-    def update(
-        self,
-        color: str,
-        detections: List[Detection],
-    ) -> Optional[Detection]:
-        state = self.states[color]
-
-        # ---------------------------------------------------------------------
-        # Bu karede tespit yoksa
-        # ---------------------------------------------------------------------
-
-        if not detections:
-            state.missed_frames += 1
-
-            if (
-                state.missed_frames
-                > TRACK_MAX_MISSED_FRAMES
-            ):
-                self.reset(color)
-
-            return None
-
-        selected_detection: Optional[
-            Detection
-        ] = None
-
-        # ---------------------------------------------------------------------
-        # Önceki hedef merkezine yakın adayı tercih et
-        # ---------------------------------------------------------------------
-
-        if state.last_center is not None:
-            nearby_candidates = []
-
-            for detection in detections:
-                distance = euclidean_distance(
-                    state.last_center,
-                    detection.center,
-                )
-
-                if distance <= TRACK_MAX_DISTANCE_PX:
-                    nearby_candidates.append(
-                        (
-                            distance,
-                            -detection.confidence,
-                            -detection.area,
-                            detection,
-                        )
-                    )
-
-            if nearby_candidates:
-                nearby_candidates.sort(
-                    key=lambda item: (
-                        item[0],
-                        item[1],
-                        item[2],
-                    )
-                )
-
-                selected_detection = (
-                    nearby_candidates[0][3]
-                )
-
-        # Yakın aday bulunamazsa en güçlü adayı seç
-        if selected_detection is None:
-            selected_detection = detections[0]
-
-        # ---------------------------------------------------------------------
-        # Ardışık kare sayısı
-        # ---------------------------------------------------------------------
-
-        if state.last_center is None:
-            state.consecutive_frames = 1
-
-        else:
-            distance = euclidean_distance(
-                state.last_center,
-                selected_detection.center,
-            )
-
-            if distance <= TRACK_MAX_DISTANCE_PX:
-                state.consecutive_frames += 1
-            else:
-                state.consecutive_frames = 1
-
-        state.last_center = (
-            selected_detection.center
-        )
-
-        state.last_detection = (
-            selected_detection
-        )
-
-        state.missed_frames = 0
-
-        selected_detection.consecutive_frames = (
-            state.consecutive_frames
-        )
-
-        selected_detection.verified = (
-            state.consecutive_frames
-            >= REQUIRED_CONSECUTIVE_FRAMES
-        )
-
-        return selected_detection
 
 
 # =============================================================================
@@ -1114,145 +963,7 @@ def create_debug_grid(
     return grid
 
 
-# =============================================================================
-# KAMERA SINIFI
-# =============================================================================
 
-class Camera:
-    def __init__(self) -> None:
-        self.picamera = None
-        self.capture = None
-        self.use_picamera = False
-
-    def start(self) -> bool:
-        # Raspberry Pi kamerasını dene
-        if HAS_PICAMERA2:
-            try:
-                self.picamera = Picamera2()
-
-                camera_config = (
-                    self.picamera.create_preview_configuration(
-                        main={
-                            "size": (
-                                CAMERA_WIDTH,
-                                CAMERA_HEIGHT,
-                            ),
-                            "format": "RGB888",
-                        }
-                    )
-                )
-
-                self.picamera.configure(
-                    camera_config
-                )
-
-                self.picamera.start()
-
-                self.use_picamera = True
-
-                time.sleep(1.0)
-
-                print(
-                    "  ✓ Raspberry Pi kamera "
-                    f"başlatıldı — "
-                    f"{CAMERA_WIDTH}x"
-                    f"{CAMERA_HEIGHT}"
-                )
-
-                return True
-
-            except Exception as error:
-                print(
-                    "  Picamera2 kullanılamadı: "
-                    f"{error}"
-                )
-
-                self.picamera = None
-                self.use_picamera = False
-
-        # Windows / USB kamera
-        if os.name == "nt":
-            self.capture = cv2.VideoCapture(
-                CAMERA_INDEX,
-                cv2.CAP_DSHOW,
-            )
-        else:
-            self.capture = cv2.VideoCapture(
-                CAMERA_INDEX
-            )
-
-        if not self.capture.isOpened():
-            self.capture = cv2.VideoCapture(
-                CAMERA_INDEX
-            )
-
-        if not self.capture.isOpened():
-            print("  ✗ Kamera açılamadı.")
-            return False
-
-        self.capture.set(
-            cv2.CAP_PROP_FRAME_WIDTH,
-            CAMERA_WIDTH,
-        )
-
-        self.capture.set(
-            cv2.CAP_PROP_FRAME_HEIGHT,
-            CAMERA_HEIGHT,
-        )
-
-        self.capture.set(
-            cv2.CAP_PROP_FPS,
-            CAMERA_FPS,
-        )
-
-        self.use_picamera = False
-
-        print(
-            f"  ✓ USB kamera başlatıldı — "
-            f"{CAMERA_WIDTH}x{CAMERA_HEIGHT}"
-        )
-
-        return True
-
-    def read(self) -> Optional[np.ndarray]:
-        if self.use_picamera:
-            if self.picamera is None:
-                return None
-
-            rgb_frame = (
-                self.picamera.capture_array()
-            )
-
-            return cv2.cvtColor(
-                rgb_frame,
-                cv2.COLOR_RGB2BGR,
-            )
-
-        if self.capture is None:
-            return None
-
-        success, frame = self.capture.read()
-
-        if not success:
-            return None
-
-        return frame
-
-    def stop(self) -> None:
-        if self.picamera is not None:
-            try:
-                self.picamera.stop()
-                self.picamera.close()
-            except Exception:
-                pass
-
-            self.picamera = None
-
-        if self.capture is not None:
-            self.capture.release()
-            self.capture = None
-
-        print("  Kamera kapatıldı.")
 
 
 # =============================================================================

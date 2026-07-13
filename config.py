@@ -19,7 +19,7 @@ CONNECTION_BAUD = 57600
 CONNECTION_TIMEOUT = 30  # saniye
 
 # Mission Planner TCP bağlantısı (opsiyonel, SITL test için)
-SITL_CONNECTION = 'tcp:127.0.0.1:5762'
+SITL_CONNECTION = 'udp:0.0.0.0:14550'
 
 # =============================================================================
 # KAMERA AYARLARI
