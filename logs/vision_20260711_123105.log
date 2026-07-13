@@ -1,0 +1,14 @@
+2026-07-11 12:31:05 [INFO] vision: VisionProcessor başlatıldı
+2026-07-11 12:31:05 [INFO] vision: OpenCV VideoCapture ile başlatılıyor (index=0)...
+2026-07-11 12:31:05 [INFO] vision: ✓ USB kamera başlatıldı: 640x480 @ 30fps
+2026-07-11 12:31:06 [INFO] vision: Mavi bölge tespiti: 0 adet bulundu
+2026-07-11 12:31:06 [INFO] vision: Kırmızı bölge tespiti: 0 adet bulundu
+2026-07-11 12:31:06 [INFO] vision: Mavi bölge tespiti: 0 adet bulundu
+2026-07-11 12:31:06 [INFO] vision: Kırmızı bölge tespiti: 0 adet bulundu
+2026-07-11 12:31:07 [INFO] vision: Mavi bölge tespiti: 0 adet bulundu
+2026-07-11 12:31:07 [INFO] vision: Kırmızı bölge tespiti: 1 adet bulundu
+2026-07-11 12:31:07 [INFO] vision: Mavi bölge tespiti: 0 adet bulundu
+2026-07-11 12:31:07 [INFO] vision: Kırmızı bölge tespiti: 0 adet bulundu
+2026-07-11 12:31:07 [INFO] vision: Mavi bölge tespiti: 0 adet bulundu
+2026-07-11 12:31:07 [INFO] vision: Kırmızı bölge tespiti: 0 adet bulundu
+2026-07-11 12:31:09 [INFO] vision: USB kamera durduruldu

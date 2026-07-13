@@ -1,0 +1,3 @@
+2026-07-11 15:17:12 [INFO] navigation: NavigationManager başlatıldı
+2026-07-11 15:17:12 [INFO] navigation: Bağlanılıyor: /dev/ttyACM0 (baud=57600)...
+2026-07-11 15:17:12 [ERROR] navigation: ✗ Bağlantı hatası: No module named 'serial'

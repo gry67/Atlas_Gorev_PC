@@ -1,0 +1,3 @@
+2026-07-11 15:17:12 [INFO] payload: PayloadManager başlatıldı - Servo Kanal: 9, Nötr: 1500µs
+2026-07-11 15:17:23 [INFO] payload: Servo nötr pozisyona getiriliyor...
+2026-07-11 15:17:23 [ERROR] payload: Vehicle bağlantısı yok! Servo komutu gönderilemedi.

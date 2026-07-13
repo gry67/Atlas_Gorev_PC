@@ -1,0 +1,5 @@
+2026-07-11 15:44:05 [INFO] coordinate_transform: CoordinateTransformer başlatıldı
+2026-07-11 15:44:05 [INFO] coordinate_transform:   Kamera matrisi:
+[[554.25   0.   320.  ]
+ [  0.   554.25 240.  ]
+ [  0.     0.     1.  ]]

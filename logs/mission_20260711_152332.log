@@ -1,0 +1,72 @@
+2026-07-11 15:23:32 [INFO] mission: ============================================================
+2026-07-11 15:23:32 [INFO] mission: TEKNOFEST İHA GÖREV SİSTEMİ BAŞLATILDI
+2026-07-11 15:23:32 [INFO] mission: ============================================================
+2026-07-11 15:23:32 [INFO] mission:   SITL Modu: False
+2026-07-11 15:23:32 [INFO] mission:   Kamera: True
+2026-07-11 15:23:32 [INFO] mission: Görev döngüsü başlatılıyor...
+2026-07-11 15:23:32 [INFO] mission: ==================================================
+2026-07-11 15:23:32 [INFO] mission: DURUM: INIT - Sistem Başlatılıyor
+2026-07-11 15:23:32 [INFO] mission: ==================================================
+2026-07-11 15:23:32 [INFO] mission: ✓ GPS fix: 3
+2026-07-11 15:23:34 [INFO] mission: ✓ Kamera başlatıldı
+2026-07-11 15:23:34 [INFO] mission: ✓ Servo nötr pozisyonda
+2026-07-11 15:23:34 [INFO] mission: ✓ Batarya: 16.2V, Seviye: 92%
+2026-07-11 15:23:34 [INFO] mission: ✓ Tüm sistemler hazır
+2026-07-11 15:23:34 [INFO] mission: DURUM GEÇİŞİ: INIT → TAKEOFF
+2026-07-11 15:23:34 [INFO] mission: ==================================================
+2026-07-11 15:23:34 [INFO] mission: DURUM: TAKEOFF - Kalkış
+2026-07-11 15:23:34 [INFO] mission: ==================================================
+2026-07-11 15:23:34 [INFO] mission: Kalkış başlatıldı, hedef irtifa: 50m
+2026-07-11 15:23:42 [INFO] mission: ✓ Hedef irtifaya ulaşıldı: 45.0m
+2026-07-11 15:23:42 [INFO] mission: DURUM GEÇİŞİ: TAKEOFF → SEARCH
+2026-07-11 15:26:01 [INFO] mission: KIRMIZI tespit #1: GPS=(39.925409, 32.866461), Güven=77.8%
+2026-07-11 15:26:01 [INFO] mission: MAVİ tespit #1: GPS=(39.925505, 32.866414), Güven=80.0%
+2026-07-11 15:26:01 [INFO] mission: KIRMIZI tespit #2: GPS=(39.925437, 32.866479), Güven=91.2%
+2026-07-11 15:26:02 [INFO] mission: MAVİ tespit #2: GPS=(39.925514, 32.866398), Güven=86.5%
+2026-07-11 15:26:02 [INFO] mission: KIRMIZI tespit #3: GPS=(39.925462, 32.866493), Güven=94.4%
+2026-07-11 15:26:02 [INFO] mission: MAVİ tespit #3: GPS=(39.925501, 32.866385), Güven=89.9%
+2026-07-11 15:26:02 [INFO] mission: KIRMIZI tespit #4: GPS=(39.925458, 32.866500), Güven=95.1%
+2026-07-11 15:26:02 [INFO] mission: ✓ Yeterli tespit toplandı, işleme geçiliyor
+2026-07-11 15:26:02 [INFO] mission: DURUM GEÇİŞİ: SEARCH → PROCESS
+2026-07-11 15:26:02 [INFO] mission: ==================================================
+2026-07-11 15:26:02 [INFO] mission: DURUM: PROCESS - Tespitler Değerlendiriliyor
+2026-07-11 15:26:02 [INFO] mission: ==================================================
+2026-07-11 15:26:02 [INFO] mission: MAVİ hedef GPS (ortalamalı): (39.925507, 32.866399)
+2026-07-11 15:26:02 [INFO] mission: KIRMIZI hedef GPS (ortalamalı): (39.925441, 32.866484)
+2026-07-11 15:26:02 [INFO] mission: Yük bırakma misyonu oluşturuluyor...
+2026-07-11 15:26:02 [INFO] mission: ✓ Misyon yüklendi, mavi hedeflere yönleniliyor
+2026-07-11 15:26:02 [INFO] mission: DURUM GEÇİŞİ: PROCESS → NAVIGATE_BLUE
+2026-07-11 15:26:03 [INFO] mission:   Mavi hedefe mesafe: 8.0m
+2026-07-11 15:26:03 [INFO] mission: ✓ Mavi hedefe ulaşıldı! Mesafe: 8.0m
+2026-07-11 15:26:03 [INFO] mission: DURUM GEÇİŞİ: NAVIGATE_BLUE → DROP_BLUE
+2026-07-11 15:26:03 [INFO] mission: ==================================================
+2026-07-11 15:26:03 [INFO] mission: DURUM: DROP_BLUE - Yük 1 Bırakılıyor
+2026-07-11 15:26:03 [INFO] mission: ==================================================
+2026-07-11 15:26:03 [INFO] mission: ✓ Yük 1 başarıyla bırakıldı!
+2026-07-11 15:26:03 [INFO] mission: DURUM GEÇİŞİ: DROP_BLUE → NAVIGATE_RED
+2026-07-11 15:26:03 [INFO] mission:   Kırmızı hedefe mesafe: 4.0m
+2026-07-11 15:26:03 [INFO] mission: ✓ Kırmızı hedefe ulaşıldı! Mesafe: 4.0m
+2026-07-11 15:26:03 [INFO] mission: DURUM GEÇİŞİ: NAVIGATE_RED → DROP_RED
+2026-07-11 15:26:03 [INFO] mission: ==================================================
+2026-07-11 15:26:03 [INFO] mission: DURUM: DROP_RED - Yük 2 Bırakılıyor
+2026-07-11 15:26:03 [INFO] mission: ==================================================
+2026-07-11 15:26:03 [INFO] mission: ✓ Yük 2 başarıyla bırakıldı!
+2026-07-11 15:26:03 [INFO] mission: DURUM GEÇİŞİ: DROP_RED → RTL
+2026-07-11 15:26:03 [INFO] mission: ==================================================
+2026-07-11 15:26:03 [INFO] mission: DURUM: RTL - Eve Dönüş
+2026-07-11 15:26:03 [INFO] mission: ==================================================
+2026-07-11 15:26:03 [INFO] mission: RTL modu aktif, eve dönülüyor...
+2026-07-11 15:26:10 [INFO] mission:   Eve mesafe: 0.0m, İrtifa: 50.0m
+2026-07-11 15:26:10 [INFO] mission:   Eve mesafe: 0.0m, İrtifa: 50.0m
+2026-07-11 15:26:20 [INFO] mission:   Eve mesafe: 0.0m, İrtifa: 50.0m
+2026-07-11 15:26:20 [INFO] mission:   Eve mesafe: 0.0m, İrtifa: 50.0m
+2026-07-11 15:26:30 [INFO] mission:   Eve mesafe: 0.0m, İrtifa: 50.0m
+2026-07-11 15:26:30 [INFO] mission:   Eve mesafe: 0.0m, İrtifa: 50.0m
+2026-07-11 15:26:40 [INFO] mission:   Eve mesafe: 0.0m, İrtifa: 50.0m
+2026-07-11 15:26:40 [INFO] mission:   Eve mesafe: 0.0m, İrtifa: 50.0m
+2026-07-11 15:26:50 [INFO] mission:   Eve mesafe: 0.0m, İrtifa: 50.0m
+2026-07-11 15:26:50 [INFO] mission:   Eve mesafe: 0.0m, İrtifa: 50.0m
+2026-07-11 15:26:58 [WARNING] mission: Kapatma sinyali alındı (signal=2)
+2026-07-11 15:26:58 [INFO] mission: DURUM GEÇİŞİ: RTL → COMPLETE
+2026-07-11 15:26:58 [INFO] mission: Sistem kapatılıyor...
+2026-07-11 15:26:59 [INFO] mission: ✓ Sistem kapatıldı

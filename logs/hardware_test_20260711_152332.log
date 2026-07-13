@@ -1,0 +1,14 @@
+2026-07-11 15:23:32 [INFO] hardware_test: SIMÜLASYON: Sahte Cube bağlantısı kuruldu
+2026-07-11 15:23:32 [INFO] hardware_test: SIMÜLASYON: Payload sahte vehicle'a bağlandı
+2026-07-11 15:23:34 [INFO] hardware_test: SIMÜLASYON: Servo nötr komutu verildi
+2026-07-11 15:23:34 [INFO] hardware_test: SIMÜLASYON: Arama paterni oluşturuldu (merkez=39.925533,32.866287)
+2026-07-11 15:23:34 [INFO] hardware_test: SIMÜLASYON: Arama misyonu yüklendi
+2026-07-11 15:23:34 [INFO] hardware_test: SIMÜLASYON: İHA ARM edildi
+2026-07-11 15:23:34 [INFO] hardware_test: SIMÜLASYON: Uçuş modu AUTO
+2026-07-11 15:26:02 [INFO] hardware_test: SIMÜLASYON: Yük bırakma misyonu oluşturuldu (mavi=[(39.92550679744924, 32.86639901391717)], kırmızı=[(39.92544142613703, 32.866483552722585)])
+2026-07-11 15:26:02 [INFO] hardware_test: SIMÜLASYON: Uçuş modu AUTO
+2026-07-11 15:26:03 [INFO] hardware_test: SIMÜLASYON: MAVİ yük bırakıldı
+2026-07-11 15:26:03 [INFO] hardware_test: SIMÜLASYON: KIRMIZI yük bırakıldı
+2026-07-11 15:26:03 [INFO] hardware_test: SIMÜLASYON: Uçuş modu RTL
+2026-07-11 15:26:59 [INFO] hardware_test: SIMÜLASYON: Servo nötr komutu verildi
+2026-07-11 15:26:59 [INFO] hardware_test: SIMÜLASYON: Sahte Cube bağlantısı kapatıldı
