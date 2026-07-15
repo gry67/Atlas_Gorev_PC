@@ -12,7 +12,7 @@ from config import MissionState
 from logger_config import setup_logger
 from vision import VisionProcessor, DetectionResult
 from coordinate_transform import CoordinateTransformer
-from navigation import NavigationManager
+from NavigationManager import NavigationManager
 from PayloadManager import PayloadManager
 
 

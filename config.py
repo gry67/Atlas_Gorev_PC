@@ -12,6 +12,11 @@ import numpy as np
 # BAĞLANTI AYARLARI
 # =============================================================================
 
+
+#GÖREV VİDEOSU TEST DURUMU 0=webcam, 1=Raspberry Kamerası
+GOREV_KAMERA_SECIM = 0
+
+
 # MAVLink bağlantı stringi (Orange Cube+ için)
 # USB: '/dev/ttyACM0'  |  Telemetri: '/dev/ttyUSB0'  |  TCP: 'tcp:127.0.0.1:5763'
 CONNECTION_STRING = '/dev/ttyACM0'
